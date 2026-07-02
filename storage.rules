@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /avatars/{userId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    match /branding/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && exists(/databases/$(database)/documents/owners/$(request.auth.uid));
+    }
+    match /progress/{userId}/{allPaths=**} {
+      allow read: if request.auth != null && (request.auth.uid == userId || exists(/databases/$(database)/documents/coaches/$(request.auth.uid)) || exists(/databases/$(database)/documents/owners/$(request.auth.uid)));
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

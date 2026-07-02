@@ -1,0 +1,15 @@
+# Build & Dependency Outputs
+node_modules/
+.next/
+out/
+dist/
+coverage/
+
+# Firebase configuration caches
+.firebase/
+firestore.indexes.json
+manifest.json
+
+# Environment variables
+.env*
+*.pem

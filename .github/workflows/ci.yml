@@ -1,0 +1,41 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  audit-and-validate:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-node-version: '20'
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Lint Check
+      run: npm run lint
+
+    - name: TypeScript Type Check
+      run: npx tsc --noEmit
+
+    - name: Production Build Check
+      run: npm run build
+      env:
+        # Build-time environment variables can be set to mock strings
+        NEXT_PUBLIC_FIREBASE_API_KEY: "mock_api_key"
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "mock_auth_domain"
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: "mock_project_id"
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "mock_storage_bucket"
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "mock_sender_id"
+        NEXT_PUBLIC_FIREBASE_APP_ID: "mock_app_id"

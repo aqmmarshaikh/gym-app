@@ -1,0 +1,109 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if the user is an owner (either by existence in owners collection or designated role)
+    function isOwner() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/owners/$(request.auth.uid));
+    }
+
+    // Check if the user is a coach
+    function isCoach() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/coaches/$(request.auth.uid));
+    }
+
+    // Check if the member code matches the user's uid
+    function isSelfMember(memberCode) {
+      return isAuthenticated() && request.auth.uid == memberCode;
+    }
+
+    // Settings & Branding
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Coaches collection
+    match /coaches/{coachId} {
+      allow read: if true;
+      allow create, delete: if isOwner();
+      allow update: if isOwner() || (isCoach() && request.auth.uid == coachId);
+    }
+
+    // Members collection
+    match /members/{memberCode} {
+      allow read: if isOwner() || isCoach() || isSelfMember(memberCode);
+      allow create: if isOwner() || isCoach();
+      allow update: if isOwner() || isCoach() || (isSelfMember(memberCode) && 
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['email', 'phone', 'photoUrl', 'bloodGroup', 'occupation', 'dob', 'photos']));
+      allow delete: if isOwner();
+    }
+
+    // Attendance logs
+    match /attendance/{recordId} {
+      allow read: if isOwner() || isCoach() || (isAuthenticated() && resource.data.memberCode == request.auth.uid);
+      allow create: if isOwner() || isCoach() || (isAuthenticated() && request.resource.data.memberCode == request.auth.uid);
+      allow update: if isOwner() || isCoach();
+      allow delete: if isOwner();
+    }
+
+    // Gym Machines
+    match /machines/{machineId} {
+      allow read: if true;
+      allow write: if isOwner() || isCoach();
+    }
+
+    // Workout categories & schedules
+    match /workoutCategories/{categoryId} {
+      allow read: if true;
+      allow write: if isOwner() || isCoach();
+    }
+
+    // Diet plans
+    match /dietPlans/{planId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner() || isCoach();
+    }
+
+    // Audit logs (append-only)
+    match /auditLogs/{logId} {
+      allow read: if isOwner();
+      allow create: if isAuthenticated();
+      allow update, delete: if false;
+    }
+
+    // Public lead captures & WhatsApp requests
+    match /joinRequests/{requestId} {
+      allow read: if isOwner() || isCoach();
+      allow create: if true; // Publicly writable for new inquiries
+      allow update: if isOwner() || isCoach();
+      allow delete: if isOwner();
+    }
+
+    // Testimonials & Transformations
+    match /testimonials/{id} {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+
+    // Announcements
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if isOwner() || isCoach();
+    }
+
+    // Notifications
+    match /notifications/{id} {
+      allow read: if isAuthenticated() && (resource.data.recipientId == request.auth.uid || isOwner() || isCoach());
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (resource.data.recipientId == request.auth.uid || isOwner() || isCoach());
+      allow delete: if isAuthenticated() && (resource.data.recipientId == request.auth.uid || isOwner());
+    }
+  }
+}

@@ -1,0 +1,12 @@
+# Global owners (will receive reviews for all files)
+*       @aqmmarshaikh
+
+# Infrastructure and deployments
+/firebase.json             @aqmmarshaikh
+/firestore.rules           @aqmmarshaikh
+/storage.rules             @aqmmarshaikh
+/.github/workflows/        @aqmmarshaikh
+
+# Database and core service changes
+/src/lib/db/               @aqmmarshaikh
+/src/lib/firebase/         @aqmmarshaikh
