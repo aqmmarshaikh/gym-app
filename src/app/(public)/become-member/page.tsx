@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { UserPlus, MessageCircle, HelpCircle } from "lucide-react";
+import { UserPlus, MessageCircle } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 
 export default function BecomeMemberPage() {

@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { 
-  Settings, Save, Globe, Phone, MapPin, Clock, MessageSquare, Sparkles, Sliders
+  Save, Phone, MapPin, Sparkles
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
+import { BrandSettings } from "@/lib/db/mockData";
 
 export default function OwnerBrandingPage() {
-  const router = useRouter();
-  
-  const [settings, setSettings] = useState<any>(null);
+  const [settings, setSettings] = useState<BrandSettings | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
   // Form states
@@ -26,19 +23,22 @@ export default function OwnerBrandingPage() {
   const [closingTime, setClosingTime] = useState("");
 
   useEffect(() => {
-    const s = dbService.getBrandSettings();
-    if (s) {
-      setSettings(s);
-      setName(s.name);
-      setTagline(s.tagline);
-      setPhone(s.phone);
-      setWhatsapp(s.whatsapp);
-      setEmail(s.email);
-      setAddress(s.address);
-      setMapLink(s.googleMapLink);
-      setOpeningTime(s.openingTime);
-      setClosingTime(s.closingTime);
-    }
+    const loadData = async () => {
+      const s = dbService.getBrandSettings();
+      if (s) {
+        setSettings(s);
+        setName(s.name);
+        setTagline(s.tagline);
+        setPhone(s.phone);
+        setWhatsapp(s.whatsapp);
+        setEmail(s.email);
+        setAddress(s.address);
+        setMapLink(s.googleMapLink);
+        setOpeningTime(s.openingTime);
+        setClosingTime(s.closingTime);
+      }
+    };
+    loadData();
   }, []);
 
   const handleSaveSettings = (e: React.FormEvent) => {

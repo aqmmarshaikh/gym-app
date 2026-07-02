@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  Building, Users, Settings, LogOut, LayoutDashboard
+  Users, Settings, LogOut, LayoutDashboard
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 
@@ -20,24 +20,27 @@ export default function OwnerLayout({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const session = dbService.getCurrentSession();
-    
-    // Login page bypass
-    if (pathname === "/owner") {
-      if (session && session.type === "owner") {
-        router.push("/owner/dashboard");
-      } else {
-        setLoading(false);
+    const checkAuth = async () => {
+      const session = dbService.getCurrentSession();
+      
+      // Login page bypass
+      if (pathname === "/owner") {
+        if (session && session.type === "owner") {
+          router.push("/owner/dashboard");
+        } else {
+          setLoading(false);
+        }
+        return;
       }
-      return;
-    }
 
-    if (!session || session.type !== "owner") {
-      router.push("/owner");
-      return;
-    }
+      if (!session || session.type !== "owner") {
+        router.push("/owner");
+        return;
+      }
 
-    setLoading(false);
+      setLoading(false);
+    };
+    checkAuth();
   }, [pathname, router]);
 
   const handleLogout = () => {

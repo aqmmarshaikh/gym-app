@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  LineChart, Sparkles, Plus, Image as ImageIcon, Scale, Ruler, Activity, Check 
+  Plus, Ruler, Activity 
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { MemberProgress, Member } from "@/lib/db/mockData";
@@ -32,7 +32,10 @@ export default function MemberProgressPage() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      loadData();
+    };
+    init();
   }, []);
 
   const handleLogProgress = (e: React.FormEvent) => {
@@ -99,7 +102,7 @@ export default function MemberProgressPage() {
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
           >
-            <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-4">Log Today's Stats</h3>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-white mb-4">Log Today&apos;s Stats</h3>
             
             <form onSubmit={handleLogProgress} className="flex flex-col gap-4">
               <div>
@@ -192,7 +195,6 @@ export default function MemberProgressPage() {
               {/* Simple Sparkline Bars */}
               <div className="flex justify-around items-end h-20 w-full px-2 z-10">
                 {progressHistory.map((p, idx) => {
-                  const maxW = 90; // base scale
                   const pct = Math.min(Math.round(((p.weight - 60) / 30) * 100), 100);
                   return (
                     <div key={idx} className="flex flex-col items-center gap-2">

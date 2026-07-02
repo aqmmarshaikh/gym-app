@@ -3,20 +3,19 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { 
   ShieldCheck, MapPin, Clock, Star, HelpCircle, 
   ChevronDown, MessageCircle, Phone, Sparkles,
-  ArrowRight, Users
+  ArrowRight
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
+import { Gallery } from "@/lib/db/mockData";
 
 export default function AboutPage() {
   const router = useRouter();
   const settings = dbService.getBrandSettings();
   const coaches = dbService.getCoaches();
   const machines = dbService.getMachines();
-  const transformations = dbService.getTransformations();
   const testimonials = dbService.getTestimonials();
   const galleryItems = dbService.getGallery();
   
@@ -204,9 +203,9 @@ export default function AboutPage() {
         {/* Gallery Grid */}
         <div className="grid grid-cols-2 gap-3">
           {galleryItems
-            .filter((item: any) => item.category === activeGalleryTab)
+            .filter((item: Gallery) => item.category === activeGalleryTab)
             .slice(0, 4)
-            .map((item: any) => (
+            .map((item: Gallery) => (
               <div key={item.id} className="relative h-28 rounded-xl overflow-hidden bg-neutral-900 border border-white/[0.03]">
                 <Image
                   src={item.imageUrl}

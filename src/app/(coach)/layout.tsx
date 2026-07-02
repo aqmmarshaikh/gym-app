@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { 
-  LayoutDashboard, Users, QrCode, ClipboardList, LogOut
+  LayoutDashboard, Users, QrCode, LogOut
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Coach } from "@/lib/db/mockData";
@@ -22,32 +22,35 @@ export default function CoachLayout({
   const [coach, setCoach] = useState<Coach | null>(null);
 
   useEffect(() => {
-    const session = dbService.getCurrentSession();
-    
-    // Login page bypass
-    if (pathname === "/coach") {
-      if (session && session.type === "coach") {
-        router.push("/coach/dashboard");
-      } else {
-        setLoading(false);
+    const checkAuth = async () => {
+      const session = dbService.getCurrentSession();
+      
+      // Login page bypass
+      if (pathname === "/coach") {
+        if (session && session.type === "coach") {
+          router.push("/coach/dashboard");
+        } else {
+          setLoading(false);
+        }
+        return;
       }
-      return;
-    }
 
-    if (!session || session.type !== "coach") {
-      router.push("/coach");
-      return;
-    }
+      if (!session || session.type !== "coach") {
+        router.push("/coach");
+        return;
+      }
 
-    const currentCoach = dbService.getCoachById(session.id);
-    if (!currentCoach) {
-      dbService.logout();
-      router.push("/coach");
-      return;
-    }
+      const currentCoach = dbService.getCoachById(session.id);
+      if (!currentCoach) {
+        dbService.logout();
+        router.push("/coach");
+        return;
+      }
 
-    setCoach(currentCoach);
-    setLoading(false);
+      setCoach(currentCoach);
+      setLoading(false);
+    };
+    checkAuth();
   }, [pathname, router]);
 
   const handleLogout = () => {

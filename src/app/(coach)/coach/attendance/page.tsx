@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  QrCode, Camera, Search, UserCheck, AlertTriangle, CheckCircle, Clock 
+  Camera, Search, AlertTriangle, CheckCircle, Clock 
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Member } from "@/lib/db/mockData";
@@ -17,7 +17,10 @@ export default function CoachAttendancePage() {
   const [scanResult, setScanResult] = useState<{ success: boolean; message: string; time?: string } | null>(null);
 
   useEffect(() => {
-    setMembers(dbService.getMembers().filter(m => m.status !== "Left"));
+    const load = async () => {
+      setMembers(dbService.getMembers().filter(m => m.status !== "Left"));
+    };
+    load();
   }, []);
 
   const handleScanSimulation = () => {

@@ -23,39 +23,42 @@ export default function MemberLayout({
   const [errorStatus, setErrorStatus] = useState<Member["status"] | null>(null);
 
   useEffect(() => {
-    // Session check
-    const session = dbService.getCurrentSession();
-    
-    // Login page bypass
-    if (pathname === "/member") {
-      if (session && session.type === "member") {
-        router.push("/member/dashboard");
-      } else {
-        setLoading(false);
+    const checkAuth = async () => {
+      // Session check
+      const session = dbService.getCurrentSession();
+      
+      // Login page bypass
+      if (pathname === "/member") {
+        if (session && session.type === "member") {
+          router.push("/member/dashboard");
+        } else {
+          setLoading(false);
+        }
+        return;
       }
-      return;
-    }
 
-    if (!session || session.type !== "member") {
-      router.push("/member");
-      return;
-    }
+      if (!session || session.type !== "member") {
+        router.push("/member");
+        return;
+      }
 
-    const currentMember = dbService.getMemberByCode(session.id);
-    if (!currentMember) {
-      dbService.logout();
-      router.push("/member");
-      return;
-    }
+      const currentMember = dbService.getMemberByCode(session.id);
+      if (!currentMember) {
+        dbService.logout();
+        router.push("/member");
+        return;
+      }
 
-    if (currentMember.status === "Blocked" || currentMember.status === "Expired") {
-      setErrorStatus(currentMember.status);
+      if (currentMember.status === "Blocked" || currentMember.status === "Expired") {
+        setErrorStatus(currentMember.status);
+        setLoading(false);
+        return;
+      }
+
+      setMember(currentMember);
       setLoading(false);
-      return;
-    }
-
-    setMember(currentMember);
-    setLoading(false);
+    };
+    checkAuth();
   }, [pathname, router]);
 
   const handleLogout = () => {

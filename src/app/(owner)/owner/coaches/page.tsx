@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Users, UserPlus, ShieldAlert, KeyRound, Check, Edit, Trash2, X, Plus, ToggleLeft, ToggleRight
+  X, Plus, ToggleLeft, ToggleRight
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Coach } from "@/lib/db/mockData";
@@ -33,7 +33,10 @@ export default function OwnerCoachesPage() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      loadData();
+    };
+    init();
   }, []);
 
   const handleToggleCoachStatus = (c: Coach) => {

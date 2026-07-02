@@ -3,18 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  Users, Calendar, Clock, Bell, UserPlus, ShieldAlert, Award, FileText, CheckCircle2,
-  Megaphone, Plus, ArrowRight, Settings, AlertTriangle, KeyRound, QrCode, Dumbbell, ChevronRight
+  Users, Calendar, UserPlus, ShieldAlert,
+  Megaphone, AlertTriangle, QrCode, Dumbbell, ChevronRight
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
-import { Member, Coach, Announcement } from "@/lib/db/mockData";
+import { Member, Coach, Announcement, JoinRequest } from "@/lib/db/mockData";
 
 export default function CoachDashboardPage() {
   const router = useRouter();
   
   const [coach, setCoach] = useState<Coach | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
-  const [requests, setRequests] = useState<any[]>([]);
+  const [requests, setRequests] = useState<JoinRequest[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showAnnounceModal, setShowAnnounceModal] = useState(false);
   
@@ -35,7 +35,10 @@ export default function CoachDashboardPage() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      loadData();
+    };
+    init();
   }, []);
 
   const handleCreateAnnouncement = (e: React.FormEvent) => {
@@ -60,7 +63,6 @@ export default function CoachDashboardPage() {
   // Analytics
   const activeCount = members.filter(m => m.status === "Active").length;
   const expiredCount = members.filter(m => m.status === "Expired").length;
-  const blockedCount = members.filter(m => m.status === "Blocked").length;
   const dueCount = members.filter(m => m.status === "Fee Due").length;
 
   const today = new Date().toLocaleDateString("en-US", {
@@ -186,7 +188,7 @@ export default function CoachDashboardPage() {
                 <label className="block text-[10px] font-semibold text-text-secondary uppercase mb-1">Priority</label>
                 <select
                   value={annPriority}
-                  onChange={(e: any) => setAnnPriority(e.target.value)}
+                  onChange={(e) => setAnnPriority(e.target.value as "High" | "Medium" | "Low")}
                   className="w-full bg-black/60 border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white focus:border-gold outline-none"
                 >
                   <option value="High">High Priority</option>

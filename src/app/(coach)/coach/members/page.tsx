@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Search, Filter, Plus, ChevronRight, X, Phone, ShieldAlert, Check,
-  Calendar, Award, KeyRound, Sparkles, Scale, User, Edit, Save, DollarSign
+  Search, Plus, ChevronRight, X, KeyRound, Save, DollarSign
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Member, Coach } from "@/lib/db/mockData";
@@ -26,7 +25,7 @@ export default function CoachMembersPage() {
   const [showRenewModal, setShowRenewModal] = useState(false);
   const [renewAmount, setRenewAmount] = useState("6000");
   const [renewDuration, setRenewDuration] = useState("3");
-  const [renewRemarks, setRenewRemarks] = useState("Fees paid cash at desk");
+  const [renewRemarks] = useState("Fees paid cash at desk");
 
   // Edit details inside modal
   const [editGoal, setEditGoal] = useState("");
@@ -65,7 +64,10 @@ export default function CoachMembersPage() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      loadData();
+    };
+    init();
   }, []);
 
   const handleSelectMember = (m: Member) => {
@@ -331,7 +333,7 @@ export default function CoachMembersPage() {
                       <label className="block text-[9px] text-text-secondary uppercase mb-1">Status</label>
                       <select
                         value={editStatus}
-                        onChange={(e: any) => setEditStatus(e.target.value)}
+                        onChange={(e) => setEditStatus(e.target.value as Member["status"])}
                         className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-gold"
                       >
                         <option value="Active">Active</option>
@@ -491,7 +493,7 @@ export default function CoachMembersPage() {
                       <label className="block text-[9px] text-text-secondary uppercase mb-1">Gender</label>
                       <select
                         value={newMember.gender}
-                        onChange={(e: any) => setNewMember({ ...newMember, gender: e.target.value })}
+                        onChange={(e) => setNewMember({ ...newMember, gender: e.target.value as Member["gender"] })}
                         className="w-full bg-black border border-white/10 rounded-xl px-3 py-2 text-xs text-white"
                       >
                         <option value="Male">Male</option>

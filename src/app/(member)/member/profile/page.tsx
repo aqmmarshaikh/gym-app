@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
-  User, QrCode, Calendar, Clock, Bell, Trash2, Edit3, Save, Phone,
-  UserCheck, Shield, HelpCircle
+  Calendar, Bell, Trash2, Edit3
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Member, Coach, AttendanceRecord, Notification } from "@/lib/db/mockData";
@@ -44,7 +42,10 @@ export default function MemberProfilePage() {
   };
 
   useEffect(() => {
-    loadData();
+    const init = async () => {
+      loadData();
+    };
+    init();
   }, []);
 
   const handleSaveProfile = (e: React.FormEvent) => {

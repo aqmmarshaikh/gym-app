@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Settings, Save, ArrowLeft, ToggleLeft, ToggleRight, 
+  ArrowLeft, ToggleLeft, ToggleRight, 
   Dumbbell, Plus, Trash2, Edit, ArrowUp, ArrowDown, Search, Check, 
-  ChevronRight, Calendar, AlertCircle, Sparkles, ChevronDown, ListFilter
+  Calendar, AlertCircle, ListFilter
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Machine, WorkoutCategory, WorkoutExercise, DailyWorkout } from "@/lib/db/mockData";
@@ -83,18 +82,21 @@ export default function OwnerWorkoutsPage() {
     "Suspension Trainer", "Foam Roller", "Jump Rope"
   ];
 
-  const loadData = () => {
+  const loadData = useCallback(() => {
     setMachines(dbService.getMachines());
     setCategories(dbService.getWorkoutCategories());
     if (selectedCategory) {
       const refreshedCat = dbService.getWorkoutCategories().find(c => c.id === selectedCategory.id);
       if (refreshedCat) setSelectedCategory(refreshedCat);
     }
-  };
+  }, [selectedCategory]);
 
   useEffect(() => {
-    loadData();
-  }, []);
+    const init = async () => {
+      loadData();
+    };
+    init();
+  }, [loadData]);
 
   // MACHINE HANDLERS
   const handleAddMachine = (e: React.FormEvent) => {
@@ -342,7 +344,7 @@ export default function OwnerWorkoutsPage() {
                 <span>Sort by:</span>
                 <select
                   value={machineSort}
-                  onChange={(e: any) => setMachineSort(e.target.value)}
+                  onChange={(e) => setMachineSort(e.target.value as "name" | "status" | "active")}
                   className="bg-transparent text-white font-bold border-none outline-none cursor-pointer focus:text-gold"
                 >
                   <option value="name">Machine Name</option>
@@ -355,8 +357,6 @@ export default function OwnerWorkoutsPage() {
               <div className="flex flex-col gap-3">
                 {filteredMachines.length > 0 ? (
                   filteredMachines.map((m) => {
-                    const isAvailable = m.status === "Available";
-                    const isMaintenance = m.status === "Maintenance";
                     const isActive = m.isActive !== false;
 
                     return (
@@ -980,7 +980,7 @@ export default function OwnerWorkoutsPage() {
                   <label className="block text-[9px] font-semibold text-text-secondary uppercase mb-1">Difficulty</label>
                   <select
                     value={newExDifficulty}
-                    onChange={(e: any) => setNewExDifficulty(e.target.value)}
+                    onChange={(e) => setNewExDifficulty(e.target.value as "Beginner" | "Intermediate" | "Advanced")}
                     className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-gold outline-none"
                   >
                     <option value="Beginner">Beginner</option>
@@ -1101,7 +1101,7 @@ export default function OwnerWorkoutsPage() {
                   <label className="block text-[9px] font-semibold text-text-secondary uppercase mb-1">Difficulty</label>
                   <select
                     value={editExDifficulty}
-                    onChange={(e: any) => setEditExDifficulty(e.target.value)}
+                    onChange={(e) => setEditExDifficulty(e.target.value as "Beginner" | "Intermediate" | "Advanced")}
                     className="w-full bg-black/60 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:border-gold outline-none"
                   >
                     <option value="Beginner">Beginner</option>

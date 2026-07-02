@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
-  Building, DollarSign, Users, ShieldAlert, Award, FileText, CheckCircle2,
-  Megaphone, Plus, ArrowRight, Settings, AlertTriangle, KeyRound, Clock, Download
+  DollarSign, ShieldAlert, KeyRound, Download
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { Member, Coach, AuditLog, FeeRecord } from "@/lib/db/mockData";
@@ -17,24 +16,27 @@ export default function OwnerDashboardPage() {
   const [fees, setFees] = useState<FeeRecord[]>([]);
 
   useEffect(() => {
-    setMembers(dbService.getMembers());
-    setCoaches(dbService.getCoaches());
-    setAuditLogs(dbService.getAuditLogs());
-    
-    // Sum total paid amount for mock revenue
-    // In mock data, active members paid (durationMonths * 2000)
-    const allMembers = dbService.getMembers();
-    const mockFees: FeeRecord[] = allMembers.map((m) => ({
-      id: `fee_${m.code}`,
-      memberCode: m.code,
-      paymentDate: m.joiningDate,
-      amount: m.durationMonths * 2000,
-      durationMonths: m.durationMonths,
-      expiryDate: m.expiryDate,
-      remarks: "Fee paid",
-      status: m.status === "Active" ? "Paid" : m.status === "Fee Due" ? "Pending" : "Overdue"
-    }));
-    setFees(mockFees);
+    const loadData = async () => {
+      setMembers(dbService.getMembers());
+      setCoaches(dbService.getCoaches());
+      setAuditLogs(dbService.getAuditLogs());
+      
+      // Sum total paid amount for mock revenue
+      // In mock data, active members paid (durationMonths * 2000)
+      const allMembers = dbService.getMembers();
+      const mockFees: FeeRecord[] = allMembers.map((m) => ({
+        id: `fee_${m.code}`,
+        memberCode: m.code,
+        paymentDate: m.joiningDate,
+        amount: m.durationMonths * 2000,
+        durationMonths: m.durationMonths,
+        expiryDate: m.expiryDate,
+        remarks: "Fee paid",
+        status: m.status === "Active" ? "Paid" : m.status === "Fee Due" ? "Pending" : "Overdue"
+      }));
+      setFees(mockFees);
+    };
+    loadData();
   }, []);
 
   const totalPaidRevenue = fees

@@ -1,5 +1,86 @@
 // Mock Data Generator for Fitness Corner Gym Demo Mode
 
+export interface Owner {
+  email: string;
+  name: string;
+}
+
+export interface DietMealDetail {
+  meal: string;
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  alternate: string;
+}
+
+export interface Diet {
+  calories: number;
+  protein: number;
+  carbs: number;
+  fat: number;
+  water: number;
+  breakfast: DietMealDetail;
+  snack: DietMealDetail;
+  lunch: DietMealDetail;
+  eveningSnack: DietMealDetail;
+  dinner: DietMealDetail;
+  beforeSleep: DietMealDetail;
+}
+
+export interface Membership {
+  code: string;
+  status: "Active" | "Fee Due" | "Expired" | "Blocked" | "Left";
+  expiryDate: string;
+}
+
+export interface Gallery {
+  id: string;
+  category: string;
+  imageUrl: string;
+  title: string;
+}
+
+export interface Report {
+  id: string;
+  title: string;
+  content: string;
+  createdAt: string;
+}
+
+export interface JoinRequest {
+  id: string;
+  name: string;
+  age: number;
+  height: number;
+  weight: number;
+  goal: string;
+  preferredTiming: string;
+  experience: string;
+  phone: string;
+  medicalConditions: string;
+  notes: string;
+  status: "Pending" | "Contacted" | "Registered" | "Rejected";
+  createdAt: string;
+}
+
+export interface BrandSettings {
+  name: string;
+  tagline: string;
+  logoUrl: string;
+  phone: string;
+  whatsapp: string;
+  email: string;
+  address: string;
+  googleMapLink: string;
+  openingTime: string;
+  closingTime: string;
+  emergencyContact: string;
+  instagram: string;
+  facebook: string;
+  defaultLanguage: string;
+}
+
 export interface Coach {
   id: string;
   name: string;
@@ -115,6 +196,10 @@ export interface FeeRecord {
   remarks: string;
   status: "Paid" | "Pending" | "Overdue";
 }
+
+export type Workout = WorkoutCategory;
+export type Attendance = AttendanceRecord;
+export type Fee = FeeRecord;
 
 export interface Transformation {
   id: string;

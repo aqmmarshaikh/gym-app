@@ -2,46 +2,48 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { 
-  Calendar, Dumbbell, Apple, Activity, Bell, Flame, Droplet, Award,
-  Sparkles, CheckCircle2, UserCheck, ArrowRight
+  Calendar, Dumbbell, Apple, Activity, Bell, Flame, Droplet,
+  Sparkles, UserCheck, ArrowRight
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
-import { Member, Coach } from "@/lib/db/mockData";
+import { Member, Coach, Diet, WorkoutExercise } from "@/lib/db/mockData";
 
 export default function MemberDashboardPage() {
   const router = useRouter();
   const [member, setMember] = useState<Member | null>(null);
   const [coach, setCoach] = useState<Coach | null>(null);
-  const [workout, setWorkout] = useState<any[]>([]);
-  const [diet, setDiet] = useState<any>(null);
+  const [workout, setWorkout] = useState<WorkoutExercise[]>([]);
+  const [diet, setDiet] = useState<Diet | null>(null);
   const [daysRemaining, setDaysRemaining] = useState(0);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   useEffect(() => {
-    const session = dbService.getCurrentSession();
-    if (session && session.type === "member") {
-      const m = dbService.getMemberByCode(session.id);
-      if (m) {
-        setMember(m);
-        const c = dbService.getCoachById(m.assignedCoachId);
-        if (c) setCoach(c);
-        
-        // Fetch workout & diet
-        setWorkout(dbService.getMemberWorkout(m.code) || []);
-        setDiet(dbService.getMemberDiet(m.code));
-        
-        // Calculate remaining days
-        const diffTime = new Date(m.expiryDate).getTime() - new Date().getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setDaysRemaining(diffDays > 0 ? diffDays : 0);
+    const loadData = async () => {
+      const session = dbService.getCurrentSession();
+      if (session && session.type === "member") {
+        const m = dbService.getMemberByCode(session.id);
+        if (m) {
+          setMember(m);
+          const c = dbService.getCoachById(m.assignedCoachId);
+          if (c) setCoach(c);
+          
+          // Fetch workout & diet
+          setWorkout(dbService.getMemberWorkout(m.code) || []);
+          setDiet(dbService.getMemberDiet(m.code));
+          
+          // Calculate remaining days
+          const diffTime = new Date(m.expiryDate).getTime() - new Date().getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          setDaysRemaining(diffDays > 0 ? diffDays : 0);
 
-        // Fetch unread notifications
-        const notifs = dbService.getNotifications(m.code);
-        setUnreadNotifications(notifs.filter(n => !n.read).length);
+          // Fetch unread notifications
+          const notifs = dbService.getNotifications(m.code);
+          setUnreadNotifications(notifs.filter(n => !n.read).length);
+        }
       }
-    }
+    };
+    loadData();
   }, []);
 
   if (!member) return null;
@@ -109,7 +111,7 @@ export default function MemberDashboardPage() {
               <Dumbbell className="w-5 h-5" />
             </div>
             <div>
-              <span className="text-[9px] text-text-secondary uppercase font-bold">Today's Workout</span>
+              <span className="text-[9px] text-text-secondary uppercase font-bold">Today&apos;s Workout</span>
               <h4 className="text-sm font-bold text-white mt-0.5">
                 {member.goal} Routine
               </h4>
@@ -149,7 +151,7 @@ export default function MemberDashboardPage() {
         <div className="glass-card p-4 rounded-2xl border border-gold/10 bg-white/[0.01] flex flex-col justify-between gap-3">
           <div className="flex items-center gap-2">
             <Apple className="w-4 h-4 text-gold" />
-            <span className="text-[10px] text-text-secondary uppercase font-semibold">Today's Diet</span>
+             <span className="text-[10px] text-text-secondary uppercase font-semibold">Today&apos;s Diet</span>
           </div>
 
           {diet ? (

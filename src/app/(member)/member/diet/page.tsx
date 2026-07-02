@@ -1,29 +1,32 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { 
-  Apple, Flame, Droplet, Plus, Info, Check, Coffee, Sun, Soup, Moon
+  Droplet, Plus, Info, Coffee, Sun, Soup, Moon
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
+import { Diet } from "@/lib/db/mockData";
 
 export default function MemberDietPage() {
-  const [diet, setDiet] = useState<any>(null);
+  const [diet, setDiet] = useState<Diet | null>(null);
   
   // Water tracker states
   const [waterLogged, setWaterLogged] = useState(2500); // 2.5L default starting for demo
   const [waterGoal, setWaterGoal] = useState(3500); // 3.5L goal
   
   useEffect(() => {
-    const session = dbService.getCurrentSession();
-    if (session && session.type === "member") {
-      const data = dbService.getMemberDiet(session.id);
-      if (data) {
-        setDiet(data);
-        setWaterGoal(data.water * 1000 || 3500);
+    const loadData = async () => {
+      const session = dbService.getCurrentSession();
+      if (session && session.type === "member") {
+        const data = dbService.getMemberDiet(session.id);
+        if (data) {
+          setDiet(data);
+          setWaterGoal(data.water * 1000 || 3500);
+        }
       }
-    }
+    };
+    loadData();
   }, []);
 
   const addWater = (ml: number) => {
@@ -54,7 +57,7 @@ export default function MemberDietPage() {
       {/* HEADER */}
       <div>
         <span className="text-[10px] text-gold tracking-widest uppercase font-semibold">Nutrition Engine</span>
-        <h2 className="text-xl font-bold uppercase tracking-wider mt-0.5">Today's Diet Plan</h2>
+        <h2 className="text-xl font-bold uppercase tracking-wider mt-0.5">Today&apos;s Diet Plan</h2>
         <p className="text-xs text-text-secondary mt-1">Goal-based customized nutritional templates assigned by your coach.</p>
       </div>
 

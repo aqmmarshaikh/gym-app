@@ -27,7 +27,9 @@ import {
   AuditLog,
   WorkoutCategory,
   DailyWorkout,
-  WorkoutExercise
+  WorkoutExercise,
+  BrandSettings,
+  JoinRequest
 } from "./mockData";
 
 // Simple reactive LocalStorage store for Demo Mode
@@ -169,7 +171,7 @@ class LocalStore {
   }
 
   // Settings
-  get brandSettings() {
+  get brandSettings(): BrandSettings {
     return this.get("fcg_brand_settings", {
       name: "Fitness Corner Gym",
       tagline: "Build Strength. Build Discipline. Build Yourself.",
@@ -187,17 +189,17 @@ class LocalStore {
       defaultLanguage: "English"
     });
   }
-  set brandSettings(val: any) {
+  set brandSettings(val: BrandSettings) {
     this.set("fcg_brand_settings", val);
   }
 
-  get joinRequests() {
+  get joinRequests(): JoinRequest[] {
     return this.get("fcg_join_requests", [
-      { id: "req1", name: "Rohan Joshi", age: 24, height: 175, weight: 80, goal: "Weight Loss", preferredTiming: "06:00 AM - 08:00 AM", phone: "+91 98989 89898", medicalConditions: "None", notes: "Please call after 5pm", status: "Pending", createdAt: "2026-07-02" },
-      { id: "req2", name: "Kriti Sharma", age: 28, height: 162, weight: 58, goal: "Muscle Building", preferredTiming: "06:00 PM - 08:00 PM", phone: "+91 97979 79797", medicalConditions: "Asthma", notes: "Looking for female trainer", status: "Contacted", createdAt: "2026-07-01" }
+      { id: "req1", name: "Rohan Joshi", age: 24, height: 175, weight: 80, goal: "Weight Loss", preferredTiming: "06:00 AM - 08:00 AM", experience: "Beginner", phone: "+91 98989 89898", medicalConditions: "None", notes: "Please call after 5pm", status: "Pending", createdAt: "2026-07-02" },
+      { id: "req2", name: "Kriti Sharma", age: 28, height: 162, weight: 58, goal: "Muscle Building", preferredTiming: "06:00 PM - 08:00 PM", experience: "Intermediate", phone: "+91 97979 79797", medicalConditions: "Asthma", notes: "Looking for female trainer", status: "Contacted", createdAt: "2026-07-01" }
     ]);
   }
-  set joinRequests(val: any[]) {
+  set joinRequests(val: JoinRequest[]) {
     this.set("fcg_join_requests", val);
   }
 
@@ -208,7 +210,6 @@ class LocalStore {
     membersList.forEach((m) => {
       const isPaid = m.status === "Active";
       const isPending = m.status === "Fee Due";
-      const isOverdue = m.status === "Expired" || m.status === "Blocked";
       
       list.push({
         id: `fee_${m.code}`,
@@ -352,8 +353,8 @@ export const dbService = {
         }
         store.currentSession = { type: "member", id: member.code };
         return { success: true, status: member.status, member, message: "Welcome Back (Firestore)!" };
-      } catch (err: any) {
-        return { success: false, message: `Firestore Error: ${err.message}` };
+      } catch (err: unknown) {
+        return { success: false, message: `Firestore Error: ${(err as Error).message}` };
       }
     }
   },
@@ -403,8 +404,8 @@ export const dbService = {
         }
         store.currentSession = { type: "coach", id: coach.id };
         return { success: true, coach, message: "Authenticated via Firebase!" };
-      } catch (err: any) {
-        return { success: false, message: `Firebase Auth Error: ${err.message}` };
+      } catch (err: unknown) {
+        return { success: false, message: `Firebase Auth Error: ${(err as Error).message}` };
       }
     }
   },
@@ -424,8 +425,8 @@ export const dbService = {
         await signInWithEmailAndPassword(auth, email, pass);
         store.currentSession = { type: "owner", id: "owner" };
         return { success: true, message: "Authenticated Owner via Firebase!" };
-      } catch (err: any) {
-        return { success: false, message: `Firebase Owner Auth Error: ${err.message}` };
+      } catch (err: unknown) {
+        return { success: false, message: `Firebase Owner Auth Error: ${(err as Error).message}` };
       }
     }
   },
@@ -583,7 +584,7 @@ export const dbService = {
     const newMachine: Machine = {
       id: `m_${Date.now()}`,
       name,
-      category: (category as any) || "Strength",
+      category: (category as Machine["category"]) || "Strength",
       status: "Available",
       targetMuscle: targetMuscle || "Full Body",
       imageUrl: "",
@@ -1037,14 +1038,14 @@ export const dbService = {
 
   // Brand config
   getBrandSettings: () => store.brandSettings,
-  updateBrandSettings: (updates: any) => {
+  updateBrandSettings: (updates: Partial<BrandSettings>) => {
     store.brandSettings = { ...store.brandSettings, ...updates };
     return true;
   },
 
   // Join Requests
   getJoinRequests: () => store.joinRequests,
-  addJoinRequest: (req: any) => {
+  addJoinRequest: (req: Omit<JoinRequest, "id" | "status" | "createdAt">) => {
     const list = store.joinRequests;
     list.unshift({
       ...req,
@@ -1054,7 +1055,7 @@ export const dbService = {
     });
     store.joinRequests = list;
   },
-  updateJoinRequestStatus: (id: string, status: string) => {
+  updateJoinRequestStatus: (id: string, status: JoinRequest["status"]) => {
     const list = store.joinRequests;
     const idx = list.findIndex((r) => r.id === id);
     if (idx !== -1) {
@@ -1109,9 +1110,9 @@ export const dbService = {
         }
       }
       return { success: true, message: "Firestore database successfully seeded!" };
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Firestore seeding failed:", err);
-      return { success: false, message: err.message };
+      return { success: false, message: (err as Error).message };
     }
   }
 };

@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Play, Pause, RotateCcw, CheckSquare, Square, Info, AlertTriangle, 
-  Clock, Flame, HelpCircle, Trophy, Sparkles, Dumbbell
+  Play, Pause, RotateCcw, CheckSquare, Square, Info, 
+  Clock, Trophy, Dumbbell
 } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 import { WorkoutExercise } from "@/lib/db/mockData";
@@ -24,47 +23,55 @@ export default function MemberWorkoutPage() {
   const [workoutComplete, setWorkoutComplete] = useState(false);
 
   useEffect(() => {
-    const session = dbService.getCurrentSession();
-    if (session && session.type === "member") {
-      const data = dbService.getMemberWorkout(session.id);
-      if (data) {
-        setExercises(data);
-      }
-    }
-  }, []);
-
-  // Timer logic
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (timerActive && timerSeconds > 0) {
-      interval = setInterval(() => {
-        setTimerSeconds((prev) => prev - 1);
-      }, 1000);
-    } else if (timerSeconds === 0) {
-      setTimerActive(false);
-      // Play a simple browser alert or chime sound if possible
-      if (typeof window !== "undefined") {
-        try {
-          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.3);
-        } catch {
-          // Fallback if audio context is blocked
+    const loadData = async () => {
+      const session = dbService.getCurrentSession();
+      if (session && session.type === "member") {
+        const data = dbService.getMemberWorkout(session.id);
+        if (data) {
+          setExercises(data);
         }
       }
+    };
+    loadData();
+  }, []);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (timerActive) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => {
+          if (prev <= 1) {
+            setTimerActive(false);
+            if (typeof window !== "undefined") {
+              try {
+                const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+                if (AudioCtx) {
+                  const audioCtx = new AudioCtx();
+                  const osc = audioCtx.createOscillator();
+                  const gain = audioCtx.createGain();
+                  osc.connect(gain);
+                  gain.connect(audioCtx.destination);
+                  osc.type = "sine";
+                  osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                  gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                  osc.start();
+                  osc.stop(audioCtx.currentTime + 0.3);
+                }
+              } catch {
+                // Fallback
+              }
+            }
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     }
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timerActive, timerSeconds]);
+  }, [timerActive]);
 
   const startRestTimer = (seconds: number) => {
     setTimerOption(seconds);
@@ -95,7 +102,7 @@ export default function MemberWorkoutPage() {
       {/* HEADER */}
       <div>
         <span className="text-[10px] text-gold tracking-widest uppercase font-semibold">Training Engine</span>
-        <h2 className="text-xl font-bold uppercase tracking-wider mt-0.5">Today's Workout</h2>
+        <h2 className="text-xl font-bold uppercase tracking-wider mt-0.5">Today&apos;s Workout</h2>
         <p className="text-xs text-text-secondary mt-1">Exercises filtered dynamically based on available gym machines.</p>
       </div>
 
@@ -187,7 +194,7 @@ export default function MemberWorkoutPage() {
 
       {/* EXERCISE LIST */}
       <div className="flex flex-col gap-4">
-        {exercises.map((ex, idx) => {
+        {exercises.map((ex) => {
           const isDone = !!completedMap[ex.id];
           return (
             <div 

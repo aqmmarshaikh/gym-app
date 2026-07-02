@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { UserCheck, ShieldAlert, Lock, User } from "lucide-react";
+import { ShieldAlert, Lock, User } from "lucide-react";
 import { dbService } from "@/lib/db/service";
 
 export default function CoachLoginPage() {
